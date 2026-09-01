@@ -1,34 +1,374 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>التصحر وأثره في البيئة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sand: #EDE4D0;
+    --sand-deep: #D8C7A0;
+    --green-dark: #1B5E20;
+    --green: #2E7D32;
+    --green-soft: #E8F5E9;
+    --ink: #2A2A24;
+    --card: #FFFDF8;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    font-family:'Tajawal', sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 15% -10%, var(--sand-deep) 0%, transparent 60%),
+      linear-gradient(160deg, var(--sand) 0%, var(--green-soft) 100%);
+    overflow:hidden;
+  }
+  .stage{
+    height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .deck{
+    width:100%;
+    max-width:920px;
+    height:min(600px, 88vh);
+    position:relative;
+  }
+  .slide{
+    position:absolute;
+    inset:0;
+    display:none;
+    flex-direction:column;
+    opacity:0;
+    transform:translateY(14px);
+    transition:opacity .35s ease, transform .35s ease;
+  }
+  .slide.active{
+    display:flex;
+    opacity:1;
+    transform:translateY(0);
+  }
 
-    <title>درس تفاعلي</title>
+  /* Title & closing slides */
+  .full-green{
+    background:linear-gradient(150deg, var(--green-dark), var(--green) 80%);
+    border-radius:22px;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    color:#fff;
+    padding:40px;
+    position:relative;
+    overflow:hidden;
+  }
+  .full-green::before{
+    content:"";
+    position:absolute;
+    width:340px; height:340px;
+    border-radius:50%;
+    background:rgba(255,255,255,.06);
+    top:-120px; right:-100px;
+  }
+  .full-green::after{
+    content:"";
+    position:absolute;
+    width:260px; height:260px;
+    border-radius:50%;
+    background:rgba(255,255,255,.05);
+    bottom:-100px; left:-80px;
+  }
+  .eyebrow{
+    font-family:'Cairo', sans-serif;
+    font-weight:600;
+    font-size:15px;
+    letter-spacing:.5px;
+    color:rgba(255,255,255,.75);
+    margin-bottom:14px;
+  }
+  .big-title{
+    font-family:'Cairo', sans-serif;
+    font-weight:800;
+    font-size:clamp(30px, 5vw, 50px);
+    line-height:1.35;
+    max-width:640px;
+    margin:0;
+  }
+  .subline{
+    margin-top:18px;
+    font-size:18px;
+    color:rgba(255,255,255,.85);
+    max-width:520px;
+  }
 
-    <link rel="stylesheet" href="style.css">
+  /* Story slides */
+  .story{
+    background:var(--card);
+    border-radius:22px;
+    box-shadow:0 20px 50px rgba(27,94,32,.10);
+    border:1px solid rgba(46,125,50,.12);
+    padding:38px 42px;
+    height:100%;
+  }
+  .story-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    border-bottom:2px solid var(--green-soft);
+    padding-bottom:14px;
+    margin-bottom:22px;
+  }
+  .story-title{
+    font-family:'Cairo', sans-serif;
+    font-weight:800;
+    font-size:clamp(22px, 3.2vw, 30px);
+    color:var(--green-dark);
+    margin:0;
+  }
+  .story-count{
+    font-family:'Cairo', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    color:var(--green);
+    background:var(--green-soft);
+    padding:5px 14px;
+    border-radius:100px;
+    white-space:nowrap;
+  }
+  .story-desc{
+    font-size:20px;
+    line-height:1.9;
+    color:#3a3a30;
+    margin-bottom:26px;
+  }
+  .dialogue{
+    background:var(--green-soft);
+    border-right:5px solid var(--green);
+    border-radius:14px;
+    padding:20px 24px;
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+  }
+  .avatar{
+    flex:0 0 auto;
+    width:42px; height:42px;
+    border-radius:50%;
+    background:var(--green);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Cairo', sans-serif;
+    font-weight:800;
+    font-size:17px;
+  }
+  .dialogue p{
+    margin:0;
+    font-weight:700;
+    font-size:19px;
+    color:var(--green-dark);
+    line-height:1.7;
+  }
+
+  /* Nav */
+  .nav{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:22px;
+    margin-top:20px;
+  }
+  .nav button{
+    font-family:'Cairo', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    border:none;
+    background:var(--green);
+    color:#fff;
+    padding:11px 22px;
+    border-radius:100px;
+    cursor:pointer;
+    transition:background .2s ease, transform .15s ease;
+  }
+  .nav button:hover{ background:var(--green-dark); }
+  .nav button:active{ transform:scale(.96); }
+  .nav button:disabled{
+    background:#c9c9c0;
+    cursor:not-allowed;
+  }
+  .dots{
+    display:flex;
+    gap:7px;
+  }
+  .dot{
+    width:8px; height:8px;
+    border-radius:50%;
+    background:#c8d8c9;
+    cursor:pointer;
+    transition:background .2s ease, transform .2s ease;
+  }
+  .dot.active{
+    background:var(--green);
+    transform:scale(1.35);
+  }
+
+  @media (max-width:560px){
+    .story{padding:26px 22px;}
+    .story-desc{font-size:17px;}
+    .dialogue p{font-size:16px;}
+  }
+</style>
 </head>
-
 <body>
 
-    <div class="lesson">
+<div class="stage">
+  <div class="deck" id="deck">
 
-        <h1>🧮 اختبار الرياضيات</h1>
-
-        <h2>كم يساوي 5 + 3 ؟</h2>
-
-        <div class="answers">
-            <button onclick="checkAnswer(6)">6</button>
-            <button onclick="checkAnswer(7)">7</button>
-            <button onclick="checkAnswer(8)">8</button>
-            <button onclick="checkAnswer(9)">9</button>
-        </div>
-
-        <p id="result"></p>
-
+    <!-- Slide 0: Title -->
+    <div class="slide full-green active">
+      <div class="eyebrow">قصة مصورة</div>
+      <h1 class="big-title">التصحر وأثره في البيئة</h1>
+      <p class="subline">رحلة الجد مشعل وحفيدته نورة لاكتشاف أسرار الأرض وحمايتها</p>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Slides 1-9: generated by JS from data -->
+
+    <!-- Slide 10: Closing -->
+    <div class="slide full-green">
+      <div class="eyebrow">نهاية الرحلة</div>
+      <h1 class="big-title">الدروس المستفادة</h1>
+      <p class="subline">النباتات والأشجار تحمي تربتنا، ومحاربة التصحر مسؤولية الجميع</p>
+    </div>
+
+  </div>
+</div>
+
+<div class="nav" style="position:fixed; bottom:26px; left:0; right:0;">
+  <button id="prevBtn">التالي ▶</button>
+  <div class="dots" id="dots"></div>
+  <button id="nextBtn">◀ السابق</button>
+</div>
+
+<script>
+  const storyData = [
+    {
+      title: "١. انطلاق الرحلة",
+      desc: "الجد مشعل يقود سيارته بابتسامة، متجهًا مع نورة نحو الأراضي الزراعية خارج المدينة...",
+      speaker: "الجد",
+      line: "استعدوا يا أبنائي، رحلتنا اليوم مليئة بالاكتشافات!"
+    },
+    {
+      title: "٢. تأمل الحقول",
+      desc: "توقفت السيارة أمام امتداد من الحقول الخضراء، فنزلت نورة لتتأمل المشهد بدهشة...",
+      speaker: "نورة",
+      line: "ما أجمل هذا المنظر! لم أرَ هذا القدر من الخضرة من قبل!"
+    },
+    {
+      title: "٣. النباتات كغذاء",
+      desc: "شرح الجد لنورة كيف أن هذه النباتات هي مصدر أساسي لغذاء الإنسان والحيوان...",
+      speaker: "الجد",
+      line: "هذه النباتات هي مصدر غذائنا اليومي يا نورة."
+    },
+    {
+      title: "٤. حماية التربة",
+      desc: "الأشجار المحيطة بالحقول لا تُجمّل المكان فقط، بل تحمي التربة من الانجراف والرياح...",
+      speaker: "الجد",
+      line: "هذه الأشجار هي درع الأرض الذي يحفظ تربتها."
+    },
+    {
+      title: "٥. تساؤل نورة",
+      desc: "بينما كانا يسيران، تذكرت نورة كلمة سمعتها في المدرسة ولم تفهم معناها...",
+      speaker: "نورة",
+      line: "جدي، ماذا يعني التصحر؟ سمعت عنه في المدرسة."
+    },
+    {
+      title: "٦. شرح التصحر",
+      desc: "ابتسم الجد وبدأ يشرح لها كيف تتحول الأراضي الخصبة إلى أرض جرداء لا حياة فيها...",
+      speaker: "الجد",
+      line: "التصحر هو تحوّل الأرض الخصبة إلى صحراء قاحلة."
+    },
+    {
+      title: "٧. الأحزمة الخضراء",
+      desc: "أشار الجد إلى صف طويل من الأشجار المزروعة حول المزرعة لحماية الأرض من زحف الرمال...",
+      speaker: "الجد",
+      line: "هذه الأحزمة الخضراء تُثبّت الرمال وتمنع زحفها."
+    },
+    {
+      title: "٨. حلول متكاملة",
+      desc: "تحدث الجد عن حفر الآبار، وترشيد استخدام المياه، وزراعة النباتات المقاومة للجفاف...",
+      speaker: "الجد",
+      line: "الاستغلال الحكيم للمياه يحمي أرضنا من التصحر."
+    },
+    {
+      title: "٩. الحمد والشكر",
+      desc: "في ختام الرحلة، جلس الجد وحفيدته يتأملان الحقول وهما يشكران الله على نعمة الأرض الخضراء...",
+      speaker: "الجد ونورة",
+      line: "الحمد لله على نعمه، وعلينا أن نحافظ على أرضنا."
+    }
+  ];
+
+  const deck = document.getElementById('deck');
+  const closingSlide = deck.children[deck.children.length - 1];
+
+  // Build story slides and insert before the closing slide
+  storyData.forEach((s, i) => {
+    const el = document.createElement('div');
+    el.className = 'slide story';
+    el.innerHTML = `
+      <div class="story-head">
+        <h2 class="story-title">${s.title}</h2>
+        <span class="story-count">${i + 2} / 11</span>
+      </div>
+      <p class="story-desc">${s.desc}</p>
+      <div class="dialogue">
+        <div class="avatar">${s.speaker.includes('الجد') ? 'ج' : 'ن'}</div>
+        <p>${s.speaker}: «${s.line}»</p>
+      </div>
+    `;
+    deck.insertBefore(el, closingSlide);
+  });
+
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const dotsWrap = document.getElementById('dots');
+  const prevBtn = document.getElementById('prevBtn'); // visually right = "next" in RTL flow
+  const nextBtn = document.getElementById('nextBtn');
+  let current = 0;
+
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsWrap.appendChild(d);
+  });
+  const dots = Array.from(dotsWrap.children);
+
+  function render(){
+    slides.forEach((s, i) => s.classList.toggle('active', i === current));
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    prevBtn.disabled = current === slides.length - 1; // "next" button (labelled التالي) moves forward
+    nextBtn.disabled = current === 0;
+  }
+
+  function goTo(i){
+    current = Math.max(0, Math.min(slides.length - 1, i));
+    render();
+  }
+
+  prevBtn.addEventListener('click', () => goTo(current + 1)); // التالي = next slide
+  nextBtn.addEventListener('click', () => goTo(current - 1)); // السابق = previous slide
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') goTo(current + 1);
+    if (e.key === 'ArrowRight') goTo(current - 1);
+  });
+
+  render();
+</script>
 
 </body>
 </html>
